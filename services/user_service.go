@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"project-fa/helpers"
 	"project-fa/models"
 	"project-fa/repositories"
 	"time"
@@ -47,6 +48,14 @@ func (us *UserService) CreateUser(ctx context.Context, newUser models.CreateUser
 	if newUser.Password == "" {
 		return errors.New("password is required")
 	}
+
+	// hash password user
+	password, errHash := helpers.HashPassword(newUser.Password)
+	if errHash != nil {
+		return errors.New("failed to hash password")
+	}
+
+	newUser.Password = password
 
 	err := us.userRepository.CreateUser(ctx, newUser)
 	return err

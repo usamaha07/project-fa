@@ -8,7 +8,7 @@ import (
 )
 
 type AuthRepositoryInterface interface {
-	Login(ctx context.Context, email string, password string) (models.UserResponse, error)
+	Login(ctx context.Context, email string) (models.LoginDataUserResponse, error)
 }
 
 type AuthRepository struct {
@@ -21,16 +21,16 @@ func NewAuthRepository(db *sql.DB) *AuthRepository {
 	}
 }
 
-func (ar *AuthRepository) Login(ctx context.Context, email string, password string) (models.UserResponse, error) {
-	query := "SELECT id, username, email, phone_number, age, created_at, updated_at FROM users WHERE email = ? AND password = ?"
+func (ar *AuthRepository) Login(ctx context.Context, email string) (models.LoginDataUserResponse, error) {
+	query := "SELECT id, email, password FROM users WHERE email = ?"
 
-	var user models.UserResponse
-	err := ar.mysql.QueryRowContext(ctx, query, email, password).Scan(&user.Id, &user.Username, &user.Email, &user.PhoneNumber, &user.Age, &user.CreatedAt, &user.UpdatedAt)
+	var user models.LoginDataUserResponse
+	err := ar.mysql.QueryRowContext(ctx, query, email).Scan(&user.Id, &user.Email, &user.Password)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return models.UserResponse{}, errors.New("data not found")
+			return models.LoginDataUserResponse{}, errors.New("data not found")
 		}
-		return models.UserResponse{}, err
+		return models.LoginDataUserResponse{}, err
 	}
 
 	return user, err

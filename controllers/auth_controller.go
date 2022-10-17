@@ -27,7 +27,7 @@ func (ac *AuthController) Login(c echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	loginResponse, err := ac.authService.Login(ctx, userLogin.Email, userLogin.Password)
+	loginResponse, err := ac.authService.Login(ctx, userLogin)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, helpers.APIResponseFailed(err.Error()))
 	}

@@ -41,6 +41,12 @@ type LoginUserResponse struct {
 	UserId int    `json:"user_id"`
 }
 
+type LoginDataUserResponse struct {
+	Id       int    `json:"id" db:"id"`
+	Email    string `json:"email" db:"email"`
+	Password string `json:"password" db:"password"`
+}
+
 type UpdateUserRequest struct {
 	Username    string     `json:"username"`
 	Email       string     `json:"email"`

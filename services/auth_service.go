@@ -2,13 +2,15 @@ package services
 
 import (
 	"context"
+	"errors"
+	"project-fa/helpers"
 	"project-fa/middlewares"
 	"project-fa/models"
 	"project-fa/repositories"
 )
 
 type AuthServiceInterface interface {
-	Login(ctx context.Context, email string, password string) (models.LoginUserResponse, error)
+	Login(ctx context.Context, userLogin models.LoginUserRequest) (models.LoginUserResponse, error)
 }
 
 type AuthService struct {
@@ -21,10 +23,19 @@ func NewAuthService(authRepo repositories.AuthRepositoryInterface) AuthServiceIn
 	}
 }
 
-func (as *AuthService) Login(ctx context.Context, email string, password string) (models.LoginUserResponse, error) {
-	user, err := as.authRepository.Login(ctx, email, password)
+func (as *AuthService) Login(ctx context.Context, userLogin models.LoginUserRequest) (models.LoginUserResponse, error) {
+
+	if userLogin.Email == "" {
+		return models.LoginUserResponse{}, errors.New("email is required")
+	}
+
+	user, err := as.authRepository.Login(ctx, userLogin.Email)
 	if err != nil {
 		return models.LoginUserResponse{}, err
+	}
+
+	if !helpers.CheckPassHash(userLogin.Password, user.Password) {
+		return models.LoginUserResponse{}, errors.New("password incorrect")
 	}
 
 	token, err := middlewares.CreateToken(user.Id)
