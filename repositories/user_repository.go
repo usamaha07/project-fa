@@ -9,9 +9,10 @@ import (
 
 type UserRepositoryInterface interface {
 	CreateUser(ctx context.Context, newUser models.CreateUserRequest) error
-	GetUserById(ctx context.Context, userId int) (models.UserResponse, error)
+	GetUserById(ctx context.Context, userId int) (models.User, error)
 	GetAllUser(ctx context.Context) ([]models.UserResponse, error)
 	DeleteUser(ctx context.Context, idToken int) error
+	UpdateUser(ctx context.Context, updateUser models.User, idToken int) (models.User, error)
 }
 
 type UserRepository struct {
@@ -35,16 +36,16 @@ func (ur *UserRepository) CreateUser(ctx context.Context, newUser models.CreateU
 	return nil
 }
 
-func (ur *UserRepository) GetUserById(ctx context.Context, userId int) (models.UserResponse, error) {
-	query := "SELECT id, username, email, phone_number, age, created_at, updated_at FROM users WHERE id = ?"
+func (ur *UserRepository) GetUserById(ctx context.Context, userId int) (models.User, error) {
+	var user models.User
+	query := "SELECT id, username, email, password, phone_number, age, created_at, updated_at FROM users WHERE id = ?"
 
-	var user models.UserResponse
-	err := ur.mysql.QueryRowContext(ctx, query, userId).Scan(&user.Id, &user.Username, &user.Email, &user.PhoneNumber, &user.Age, &user.CreatedAt, &user.UpdatedAt)
+	err := ur.mysql.QueryRowContext(ctx, query, userId).Scan(&user.Id, &user.Username, &user.Email, &user.Password, &user.PhoneNumber, &user.Age, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return models.UserResponse{}, errors.New("data not found")
+			return models.User{}, errors.New("data not found")
 		}
-		return models.UserResponse{}, err
+		return models.User{}, err
 	}
 
 	return user, nil
@@ -86,4 +87,20 @@ func (ur *UserRepository) DeleteUser(ctx context.Context, idToken int) error {
 	}
 
 	return nil
+}
+
+func (ur *UserRepository) UpdateUser(ctx context.Context, updateUser models.User, idToken int) (models.User, error) {
+	query := "UPDATE users SET username = ?, email = ?, password = ?, phone_number = ?, age = ?, updated_at = ? WHERE id = ?"
+
+	result, err := ur.mysql.ExecContext(ctx, query, updateUser.Username, updateUser.Email, updateUser.Password, updateUser.PhoneNumber, updateUser.Age, updateUser.UpdatedAt, idToken)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	affected, _ := result.RowsAffected()
+	if affected == 0 {
+		return models.User{}, errors.New("data not found")
+	}
+
+	return updateUser, nil
 }

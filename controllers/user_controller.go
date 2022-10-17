@@ -3,7 +3,7 @@ package controllers
 import (
 	"net/http"
 	"project-fa/helpers"
-	"project-fa/middlerwares"
+	"project-fa/middlewares"
 	"project-fa/models"
 	"project-fa/services"
 	"strconv"
@@ -66,7 +66,7 @@ func (uc *UserController) GetAllUser(c echo.Context) error {
 
 func (uc *UserController) DeleteUser(c echo.Context) error {
 	// get id user from token
-	idToken, errToken := middlerwares.ExtractToken(c)
+	idToken, errToken := middlewares.ExtractToken(c)
 	if errToken != nil {
 		return c.JSON(http.StatusUnauthorized, helpers.APIResponseFailed("unauthorized"))
 	}
@@ -78,4 +78,26 @@ func (uc *UserController) DeleteUser(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, helpers.APIResponseSuccessWithoutData("success delete user"))
+}
+
+func (uc *UserController) UpdateUser(c echo.Context) error {
+	// get user_id from token
+	idToken, errToken := middlewares.ExtractToken(c)
+	if errToken != nil {
+		return c.JSON(http.StatusUnauthorized, helpers.APIResponseFailed("unauthorized"))
+	}
+
+	var updateUser models.UpdateUserRequest
+	err := c.Bind(&updateUser)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, helpers.APIResponseFailed(err.Error()))
+	}
+
+	ctx := c.Request().Context()
+	user, err := uc.userService.UpdateUser(ctx, updateUser, idToken)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, helpers.APIResponseFailed(err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, helpers.APIResponseSuccess("success to update user", user))
 }

@@ -2,7 +2,7 @@ package services
 
 import (
 	"context"
-	"project-fa/middlerwares"
+	"project-fa/middlewares"
 	"project-fa/models"
 	"project-fa/repositories"
 )
@@ -27,7 +27,7 @@ func (as *AuthService) Login(ctx context.Context, email string, password string)
 		return models.LoginUserResponse{}, err
 	}
 
-	token, err := middlerwares.CreateToken(user.Id)
+	token, err := middlewares.CreateToken(user.Id)
 	if err != nil {
 		return models.LoginUserResponse{}, err
 	}

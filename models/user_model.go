@@ -40,3 +40,12 @@ type LoginUserResponse struct {
 	Token  string `json:"token"`
 	UserId int    `json:"user_id"`
 }
+
+type UpdateUserRequest struct {
+	Username    string     `json:"username"`
+	Email       string     `json:"email"`
+	Password    string     `json:"password"`
+	PhoneNumber string     `json:"phone_number"`
+	Age         int        `json:"age"`
+	UpdatedAt   *time.Time `json:"updated_at"`
+}
