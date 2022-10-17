@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"project-fa/models"
 	"project-fa/repositories"
 	"time"
@@ -26,6 +27,27 @@ func NewUserService(userRepo repositories.UserRepositoryInterface) UserServiceIn
 }
 
 func (us *UserService) CreateUser(ctx context.Context, newUser models.CreateUserRequest) error {
+
+	if newUser.Username == "" {
+		return errors.New("username is required")
+	}
+
+	if newUser.Email == "" {
+		return errors.New("email is required")
+	}
+
+	if newUser.PhoneNumber == "" {
+		return errors.New("phone number is required")
+	}
+
+	if newUser.Age == 0 {
+		return errors.New("age is required")
+	}
+
+	if newUser.Password == "" {
+		return errors.New("password is required")
+	}
+
 	err := us.userRepository.CreateUser(ctx, newUser)
 	return err
 }
