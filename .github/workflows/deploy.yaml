@@ -1,0 +1,25 @@
+name: Deploy to server
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: executing deploy to server using remote ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd /home/ubuntu/go/src/project-fa
+            git pull origin main
+            docker stop project_fa
+            docker rm project_fa
+            docker rmi image_project_fa
+            docker build -t image_project_fa:latest .
+            docker run -d -p 8080:8080 --name project_fa image_project_fa:latest
