@@ -18,8 +18,8 @@ jobs:
           script: |
             cd /home/ubuntu/go/src/project-fa
             git pull origin main
-            docker stop project_fa
-            docker rm project_fa
-            docker rmi image_project_fa
-            docker build -t image_project_fa:latest .
-            docker run -d -p 8080:8080 --name project_fa image_project_fa:latest
+            sudo docker stop project_fa
+            sudo docker rm project_fa
+            sudo docker rmi image_project_fa
+            sudo docker build -t image_project_fa:latest .
+            sudo docker run -d -p 8080:8080 --name project_fa image_project_fa:latest
