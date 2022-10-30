@@ -2,16 +2,23 @@ package main
 
 import (
 	"log"
+	"os"
 	"project-fa/controllers"
 	"project-fa/databases"
 	"project-fa/repositories"
 	"project-fa/routes"
 	"project-fa/services"
 
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	// get connection to database mysql
 	db := databases.GetConnectionMysql()
 	defer db.Close()
@@ -29,5 +36,6 @@ func main() {
 	routes.LoginAuth(e, authController)
 
 	// starting web server
-	log.Fatal(e.Start(":8080"))
+	appPort := ":" + os.Getenv("APP_PORT")
+	log.Fatal(e.Start(appPort))
 }
